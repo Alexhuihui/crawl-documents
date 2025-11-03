@@ -1,0 +1,41 @@
+name: Crawl LangChain Docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run crawler
+        run: |
+          python crawl_langchain_docs.py
+
+      - name: Zip output
+        run: |
+          cd output
+          zip -r ../langchain_docs_output.zip .
+          cd ..
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: langchain_docs_output
+          path: langchain_docs_output.zip
+          retention-days: 7
